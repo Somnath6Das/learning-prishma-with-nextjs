@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  email     String  @unique
+  name      String  @map("firestName")
+  role      Role?   @default(USER)
+  profileId String? @db.ObjectId
+
+  Profile Profile?
+  Post    Post[]
+
+  // @@unique([name, role])
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Profile {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  bio    String
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@unique([userId])
+}
+
+model Post {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  title      String
+  published  Boolean  @default(false)
+  authorId   String   @db.ObjectId
+  author     User     @relation(fields: [authorId], references: [id])
+  // CategoryToPost CategoryToPost[]
+}
+
+model Category {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  // CategoryToPost CategoryToPost[]
+}
+
+// model CategoryToPost {
+//   id         String   @id @default(auto()) @map("_id") @db.ObjectId
+//   categoryId String   @db.ObjectId
+//   category   Category @relation(fields: [categoryId], references: [id])
+//   postId     String   @db.ObjectId
+//   post       Post     @relation(fields: [postId], references: [id])
+// }

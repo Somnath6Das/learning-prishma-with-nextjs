@@ -50,22 +50,45 @@ export async function GET() {
   //   },
   // });
   // get the post whose user name is not Ram email starts with s include full author of the post
+  // const posts = await prisma.post.findMany({
+  //   where: {
+  //     author: {
+  //       isNot: {
+  //         name: "Ram",
+  //       },
+  //       is: {
+  //         email: {
+  //           startsWith: "s",
+  //         },
+  //       },
+  //     },
+  //   },
+  //   include: {
+  //     author: true,
+  //   },
+  // });
+
+  // only title and author name will show with user id
+  const id = "6663ce1e043c13ef86d0e42f";
   const posts = await prisma.post.findMany({
     where: {
       author: {
-        isNot: {
-          name: "Ram",
-        },
         is: {
-          email: {
-            startsWith: "s",
+          id: {
+            equals: id,
           },
         },
       },
     },
-    include: {
-      author: true,
+    select: {
+      title: true,
+      author: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
+
   return new Response(JSON.stringify(posts));
 }
